@@ -155,12 +155,18 @@
             margin-top: auto;
         }
 
+        .card-back-content {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
         .card-answer {
             font-size: 16px;
             line-height: 1.7;
             color: #444;
-            flex: 1;
-            overflow-y: auto;
         }
 
         .card-answer strong {
@@ -942,20 +948,24 @@
                     <div class="card-face card-back">
                         <button class="edit-btn" onclick="event.stopPropagation(); toggleEdit()">✏️ Edit</button>
                         <span class="card-tag" id="cardTagBack">Part 1 • Housework</span>
-                        <div class="card-answer" id="cardAnswer">
-                            Sample answer will appear here...
-                        </div>
                         
-                        <!-- Key Points Checklist -->
-                        <div class="key-points" id="keyPoints">
-                            <div class="key-points-title">✅ Did you include?</div>
-                            <div id="keyPointsList"></div>
-                        </div>
-                        
-                        <!-- Self Reflection -->
-                        <div class="reflection-section" id="reflectionSection">
-                            <div class="reflection-title">🪞 Quick Reflection</div>
-                            <div class="reflection-prompt" id="reflectionPrompt"></div>
+                        <!-- Scrollable content area -->
+                        <div class="card-back-content" id="cardBackContent">
+                            <div class="card-answer" id="cardAnswer">
+                                Sample answer will appear here...
+                            </div>
+                            
+                            <!-- Key Points Checklist (only in active/timed modes) -->
+                            <div class="key-points hidden" id="keyPoints">
+                                <div class="key-points-title">✅ Did you include?</div>
+                                <div id="keyPointsList"></div>
+                            </div>
+                            
+                            <!-- Self Reflection (only in active/timed modes) -->
+                            <div class="reflection-section hidden" id="reflectionSection">
+                                <div class="reflection-title">🪞 Quick Reflection</div>
+                                <div class="reflection-prompt" id="reflectionPrompt"></div>
+                            </div>
                         </div>
                         
                         <div class="edit-container hidden" id="editContainer">
@@ -1316,21 +1326,36 @@
                 vocabChallenge.classList.remove('hidden');
                 cardHint.textContent = '🧠 Think & speak first, then tap to compare';
                 
+                // Show reflection tools for active mode
+                keyPoints.classList.remove('hidden');
+                reflectionSection.classList.remove('hidden');
+                
                 // Start think timer
                 startThinkTimer(30);
             } else if (currentMode === 'timed') {
                 cardHint.textContent = '📝 Use prep time to plan your answer';
+                
+                // Show reflection tools for timed mode
+                keyPoints.classList.remove('hidden');
+                reflectionSection.classList.remove('hidden');
+                
                 startIELTSTimer();
             } else {
                 cardHint.textContent = '👆 Tap to reveal answer';
+                
+                // Hide reflection tools for flashcard/vocab modes
+                keyPoints.classList.add('hidden');
+                reflectionSection.classList.add('hidden');
             }
             
-            // Generate key points for the answer
-            generateKeyPoints(card);
-            
-            // Set reflection prompt
-            const randomPrompt = reflectionPrompts[Math.floor(Math.random() * reflectionPrompts.length)];
-            document.getElementById('reflectionPrompt').textContent = randomPrompt;
+            // Generate key points for the answer (only if visible)
+            if (currentMode === 'active' || currentMode === 'timed') {
+                generateKeyPoints(card);
+                
+                // Set reflection prompt
+                const randomPrompt = reflectionPrompts[Math.floor(Math.random() * reflectionPrompts.length)];
+                document.getElementById('reflectionPrompt').textContent = randomPrompt;
+            }
         }
         
         function handleCardClick() {
